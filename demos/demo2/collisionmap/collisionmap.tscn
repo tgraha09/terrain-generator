@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://crt5nysobiy5s"]
+
+[ext_resource type="Script" path="res://demos/demo1/collisionmap/collisionmap.gd" id="1_ijmat"]
+
+[sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_oxm7v"]
+
+[node name="Collisionmap" type="CollisionShape3D"]
+shape = SubResource("ConcavePolygonShape3D_oxm7v")
+script = ExtResource("1_ijmat")

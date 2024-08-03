@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://b47gi40d1eajm"]
+
+[ext_resource type="Shader" path="res://demos/demo1/shaders/TerrainGenerator.gdshader" id="1_sguls"]
+[ext_resource type="Script" path="res://demos/demo1/clipmap/clipmap.gd" id="1_u3odi"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_73xvt"]
+render_priority = 0
+shader = ExtResource("1_sguls")
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_wiwmr"]
+size = Vector2(512, 512)
+subdivide_width = 511
+subdivide_depth = 511
+
+[node name="Clipmap" type="Node3D"]
+script = ExtResource("1_u3odi")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+material_override = SubResource("ShaderMaterial_73xvt")
+mesh = SubResource("PlaneMesh_wiwmr")
+skeleton = NodePath("../..")

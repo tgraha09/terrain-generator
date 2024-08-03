@@ -1,0 +1,28 @@
+[gd_scene load_steps=5 format=3 uid="uid://dinwanmprxgc2"]
+
+[ext_resource type="Script" path="res://demos/demo2/scripts/PlayerCharacter.gd" id="1_ps5ub"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_nhkdm"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lc32y"]
+albedo_color = Color(0.386783, 0.726677, 0.896638, 0.0745098)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_pidj4"]
+
+[node name="PlayerCharacter" type="CharacterBody3D"]
+script = ExtResource("1_ps5ub")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("CapsuleShape3D_nhkdm")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+material_override = SubResource("StandardMaterial3D_lc32y")
+mesh = SubResource("CapsuleMesh_pidj4")
+
+[node name="CameraFP" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 0)
+
+[node name="CameraTP" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.7, 4.22093)

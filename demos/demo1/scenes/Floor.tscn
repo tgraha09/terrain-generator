@@ -1,0 +1,34 @@
+[gd_scene load_steps=6 format=3 uid="uid://cncu3eptx8ftc"]
+
+[ext_resource type="PackedScene" uid="uid://di2sqd72jmgyv" path="res://demos/demo2/scenes/PlayerCharacter.tscn" id="1_pawuy"]
+
+[sub_resource type="Environment" id="Environment_rfwq6"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_528uv"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_c4vct"]
+size = Vector3(50, 1, 50)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qoaqo"]
+size = Vector3(50, 1, 50)
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_rfwq6")
+camera_attributes = SubResource("CameraAttributesPractical_528uv")
+
+[node name="Floor" type="StaticBody3D" parent="."]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor"]
+mesh = SubResource("BoxMesh_c4vct")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor"]
+shape = SubResource("BoxShape3D_qoaqo")
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("1_pawuy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.175573, 0.984466, 0, -0.984466, 0.175573, 0, 108.776, 40.1743)

@@ -1,0 +1,35 @@
+[gd_scene load_steps=7 format=3 uid="uid://dncjfce4nq5pl"]
+
+[ext_resource type="PackedScene" uid="uid://di2sqd72jmgyv" path="res://demos/demo2/scenes/PlayerCharacter.tscn" id="1_qx7ba"]
+[ext_resource type="PackedScene" uid="uid://h5bvpbkad2aa" path="res://demos/demo1/collisionmap/collisionmap.tscn" id="2_bbp5n"]
+[ext_resource type="PackedScene" uid="uid://b47gi40d1eajm" path="res://demos/demo1/clipmap/clipmap.tscn" id="2_kp0yc"]
+
+[sub_resource type="Environment" id="Environment_rfwq6"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_528uv"]
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_iackl"]
+size = Vector2(8, 8)
+subdivide_width = 7
+subdivide_depth = 7
+
+[node name="Main" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_rfwq6")
+camera_attributes = SubResource("CameraAttributesPractical_528uv")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.175573, 0.984466, 0, -0.984466, 0.175573, 0, 108.776, 40.1743)
+
+[node name="PlayerCharacter" parent="." instance=ExtResource("1_qx7ba")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 20.0719, 0)
+
+[node name="Terrain" type="StaticBody3D" parent="."]
+
+[node name="Collisionmap" parent="Terrain" node_paths=PackedStringArray("physics_body") instance=ExtResource("2_bbp5n")]
+physics_body = NodePath("../../PlayerCharacter")
+template_mesh = SubResource("PlaneMesh_iackl")
+
+[node name="Clipmap" parent="Terrain" node_paths=PackedStringArray("player_character") instance=ExtResource("2_kp0yc")]
+player_character = NodePath("../../PlayerCharacter")
