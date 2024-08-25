@@ -11,11 +11,9 @@ func _ready():
 #	print("Saving chunks")
 #	chunks = _chunks
 
-func _get_chunk_coords(position, _chunk_size):
-	#print(chunk_size)
-	var x = position.x / _chunk_size
-#	print(x)
-	return Vector3(floor(position.x / (_chunk_size)), 0, floor(position.z / _chunk_size))
+func _get_chunk_coords(_position, _chunk_size):
+	
+	return Vector3(floor(_position.x / (_chunk_size)), 0, floor(_position.z / _chunk_size))
 
 func _load_chunk(_chunk_coords, _chunks:Dictionary, _chunks_node):
 	var chunk = _chunks[_chunk_coords]
@@ -35,12 +33,15 @@ func _unload_chunk(chunk_coords, _chunks):
 	#chunks.erase(chunk_coords)
 
 func _load_surrounding_chunks(_surrounding_chunks, _chunks_node):
-	#print("Load surrounding chunks")
+	print("Load surrounding chunks")
 	#print(_surrounding_chunks)
 	for chunk in _surrounding_chunks:
-		#var chunk_instance = _surrounding_chunks[chunk_key].instance
-		if !chunk.is_inside_tree():
-			_chunks_node.add_child(chunk)
+		_chunks_node.add_child(chunk.instance)
+
+
+func _unload_all_chunks(_chunks, _chunks_node):
+	print("Unload all chunks")
+	_chunks_node.remove_child(_chunks)
 
 func _unload_surrounding_chunks(_surrounding_chunks, _chunks, _chunks_node):
 	print("Unload surrounding chunks")

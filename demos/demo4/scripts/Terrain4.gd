@@ -20,10 +20,12 @@ extends StaticBody3D
 
 @export var deformity_level:int = 16
 @export var player_body:Node3D
-@export var generate_terrain:bool:
+
+@export var generate_terrain:bool = false:
 	set(value):
-		_generate_chunks()
-		_init_chunks()
+		generate_terrain = value
+		if(generate_terrain):
+			_initialize()
 	get:
 		return generate_terrain 
 
@@ -69,27 +71,57 @@ extends StaticBody3D
 	get:
 		return "res://demos/demo4/textures/normal_map4.png"
 
-
 @export var chunks :Dictionary = {}
-var vertices:PackedVector3Array = []
-var noise
-var player_chunk_position = Vector3.ZERO
-var previous_position = Vector3.ZERO
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	_generate_chunks()
-	_init_chunks()
-		#ext._load_chunk(player_chunk_position, chunks, chunks_node)
-		#var offset = player_position * chunk_size
-
-func _process(delta):
-	#_init_chunks()
-	pass
 
 
 var surrounding_chunks
+var vertices:PackedVector3Array = []
+var noise
+var player_chunk_position = Vector3.ZERO
+var previous_chunk_position = Vector3.ZERO
+# Called when the node enters the scene tree for the first time.
+
+func _ready():
+	generate_terrain = true
+	_initialize()
+
+func _initialize():
+	_generate_chunks()
+	print("_generate_chunks has finished")
+	_init_chunks()
+	print("_init_chunks has finished")
+	print("player_chunk_position: " + str(player_chunk_position))
+
+func _process(delta):
+	if(generate_terrain):
+		oberserve_player_movement()
+	#_init_chunks()
+	#pass
+
+func oberserve_player_movement():
+	#print("player_chunk_position: " + str(player_chunk_position))
+	player_chunk_position = ext._get_chunk_coords(player_body.global_position, chunk_size)*chunk_size
+	#if previous_chunk_position != player_chunk_position:
+		#print("player_chunk_position: " + str(player_chunk_position))
+		#print("previous_chunk_position: " + str(previous_chunk_position))
+	#if(previous_chunk_position != player_chunk_position):
+	if chunks.has(player_chunk_position) && !chunks[player_chunk_position].instance.is_inside_tree(): #!chunks[player_chunk_position].instance.is_inside_tree()
+		print("New Chunk: ", chunks[player_chunk_position])
+		var chunk = chunks[player_chunk_position]#.instance
+		chunks_node.add_child(chunk.instance)
+
+	if !chunks.has(player_chunk_position): #!chunks[player_chunk_position].instance.is_inside_tree()
+		print("Create Chunk: ", player_chunk_position)
+		var generated_chunk = _generate_chunk(player_chunk_position)
+		chunks[player_chunk_position] = generated_chunk
+		
+	previous_chunk_position = player_chunk_position
+
+
+
 
 func _init_chunks():
+	
 	if chunks.size() == 0:
 		return
 
@@ -97,53 +129,30 @@ func _init_chunks():
 		print("no physics body")
 		return
 	else:
-		#var pos = ext._get_chunk_coords(player_body.position, chunk_size)
-		#player_chunk_position = ext._get_chunk_coords(player_body.position, chunk_size)
-		#print("pos: " + str(pos))
-		#print("player_chunk_position: " + str(player_chunk_position))
-		#if pos == player_chunk_position:
-			#print("pos == player_chunk_position")
-			#return
-	#	elif(pos != player_chunk_position):
-		#	print("pos != player_chunk_position")
-			#player_chunk_position = pos
-		#print(player_body.position)
-		#print(chunks)W
+
+		player_chunk_position = ext._get_chunk_coords(player_body.global_position, chunk_size) #/ chunk_size
 		for chunk in chunks.values():
-			#print("chunk: " + str(chunk))
-			pass
-		#player_chunk_position = pos
-		#print("player_chunk_position: " + str(player_chunk_position))
-		#print(Vector3(player_chunk_position.x*chunk_size, 0, player_chunk_position.z*chunk_size))
-		#print(chunks)
-		var offset = player_chunk_position * chunk_size
-		#print("offset: " + str(offset))
-		#print(chunks[offset])
-		for chunk in chunks.values():
-		#	print("chunk: " + str(chunk))
+			#print("#chunk: " + str(chunk))
 			pass
 		surrounding_chunks = []
 		var unloading_chunks = []
 		for x in range(-chunk_radius, chunk_radius):
 			for z in range(-chunk_radius, chunk_radius):
-				var chunk_coords = Vector3((player_chunk_position.x + x)*chunk_size, 0, (player_chunk_position.z + z)*chunk_size)
-				#print(chunk_coords)
+				var chunk_coords = Vector3((player_chunk_position.x + x), 0, (player_chunk_position.z + z))*chunk_size 
+
 				if 	chunks.has(chunk_coords):
-					#print(chunks.find_key(chunk_coords))
-					#if(chunks.get(chunk_coords) != null):
+
 					if 	!surrounding_chunks.has(chunk_coords) && !chunks[chunk_coords].instance.is_inside_tree():
-						#print("Chunk in list")
-						var chunk = chunks[chunk_coords].instance
+						var chunk = chunks[chunk_coords]#.instance
 						surrounding_chunks.append(chunk)
 
 					elif !surrounding_chunks.has(chunk_coords) && chunks[chunk_coords].instance.is_inside_tree():
-						var chunk = chunks[chunk_coords].instance
+						var chunk = chunks[chunk_coords]#.instance
 						unloading_chunks.append(chunk)
 
-				
-		
-		#print(surrounding_chunks)
-		ext._load_surrounding_chunks(surrounding_chunks, chunks_node)
+		#adding surroundig chunks
+		for chunk in surrounding_chunks:
+			chunks_node.add_child(chunk.instance)
 		
 	#	for chunk in chunks:
 		#	if chunks[chunk] != null:
@@ -161,6 +170,11 @@ func _init_chunks():
 func _generate_chunks():
 	print("_generate_chunks")
 	chunks = {}
+	randomize()
+	noise = FastNoiseLite.new()
+	noise.noise_type = noise_type
+	noise.frequency = frequency
+	noise.seed = randi() 
 	#chunks = []
 	#DirAccess.remove_absolute(normal_map_path)
 	chunks_node = get_node_or_null("Chunks") #Chunks
@@ -168,25 +182,35 @@ func _generate_chunks():
 		chunks_node = Node.new()
 		chunks_node.name = "Chunks"
 		self.add_child(chunks_node)
-
+		chunks_node.set_owner(self)
+		print("created chunks node")
 	# Clear existing chunks
 	for child in chunks_node.get_children():
 		child.queue_free()
 	
+	player_chunk_position = ext._get_chunk_coords(player_body.global_position, chunk_size) #/ chunk_size
+	#print("player_chunk: ", ext._get_chunk_coords(player_body.global_position, chunk_size))
+
 	var instances = []
 	var offset = Vector3.ZERO
 	# Generate chunks
-	for x in chunk_amount:
-		for z in chunk_amount:
-			offset = Vector3(x, 0, z) * chunk_size
+	for x in range(-chunk_amount, chunk_amount):#chunk_amount:
+		for z in range(-chunk_amount, chunk_amount):#chunk_amount:
+			#offset = Vector3((player_chunk_position.x + x), 0, player_chunk_position.z + z) * chunk_size #adjus to player pos
+			offset = Vector3(x, 0, z) * chunk_size #adjust to chunkj size
+			#print("offset: " + str(offset))
 			var instance = _generate_chunk(offset)
 			instances.append(instance)
 
 	for chunk in instances:
 		#chunks_node.add_child(chunk.instance)
+		#print("chunk: " + str(chunk.name))
 		chunks[chunk.name] = chunk
+		#print("chunks: " + str(chunks))
 		pass
 	#print("chunks: " + str(chunks))
+	#await get_tree().process_frame
+	#.create_timer(1.0).timeout
 
 func _generate_chunk(offset):
 	if template_mesh == null:
@@ -203,24 +227,20 @@ func _generate_chunk(offset):
 	plane_mesh.subdivide_width = chunk_size - 1
 	plane_mesh.subdivide_depth = chunk_size - 1
 
-	randomize()
-	noise = FastNoiseLite.new()
-	noise.noise_type = noise_type
-	noise.frequency = frequency
-	noise.seed = randi() 
+	
 
 	var surface_tool = SurfaceTool.new()
 	surface_tool.create_from(plane_mesh, 0)
 	var data = surface_tool.commit_to_arrays()
 	vertices = PackedVector3Array(data[ArrayMesh.ARRAY_VERTEX])
 	var heightmap:Array = []
-	var normalmap:Array = []
+	#var normalmap:Array = []
 	for i in vertices.size():
 		var vertex = vertices[i]
+		#print("vertex: " + str(vertex))
 		var height = noise.get_noise_2d(vertex.x + offset.x, vertex.z + offset.z) * deformity_level
 		vertices[i].y = height
 		heightmap.append(height)
-
 	vertices = PackedVector3Array(vertices)
 	data[ArrayMesh.ARRAY_VERTEX] = vertices
 
@@ -243,7 +263,7 @@ func _generate_chunk(offset):
 	collision_shape = shape_owner
 	#update to chunk origin
 	
-	chunk_instance.transform.origin = Vector3(offset.x + chunk_size / 2, 0, offset.z + chunk_size / 2)  # Update translation to Transform.origin
+	chunk_instance.transform.origin = Vector3(offset.x + chunk_size / 2.0, 0, offset.z + chunk_size / 2.0)  # Update translation to Transform.origin
 	#chunk_instance.name = str(offset)
 	#print(chunk_instance.name)
 	return {
