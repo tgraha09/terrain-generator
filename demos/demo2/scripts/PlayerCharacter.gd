@@ -4,12 +4,13 @@ extends CharacterBody3D
 @export var jump_velocity = 4.5
 @onready var cameraFirstPerson:Camera3D = $CameraFP
 @onready var cameraThirdPerson:Camera3D = $CameraTP
+@onready var cameraSKY:Camera3D = $CameraSKY
 @onready var camera_display:Camera3D
 var gravity = ProjectSettings.get_setting("physics/3d/default_gravity")
 var velocity_y = 0.0
 var camera_changed = false
 var look_sensitivity = ProjectSettings.get_setting("player/look_sensitivity")
-
+var camera_count = 1;
 func _ready():
 	camera_display = cameraFirstPerson
 
@@ -29,11 +30,13 @@ func _physics_process(delta):
 	if Input.is_action_just_pressed("ui_cancel"): 
 		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE else Input.MOUSE_MODE_VISIBLE
 
-func _input(event):
-
 	if Input.is_action_just_pressed("change_camera"):
 		print(camera_changed)
 		toggleCamera()
+
+func _input(event):
+
+	
 	if event is InputEventMouseMotion:
 		if camera_changed==false:
 			camera_display.rotate_x(-event.relative.y * look_sensitivity)
@@ -43,12 +46,26 @@ func _input(event):
 		
 func toggleCamera():
 	camera_changed = !camera_changed
-	if camera_changed:
+	if camera_count > 2:
+			camera_count = 0
+	camera_count += 1
+	print(camera_count)
+	if camera_count == 1:
+		cameraSKY.current = false
+		cameraThirdPerson.current = false
+		cameraFirstPerson.current = true
+		camera_display = cameraFirstPerson
+	elif camera_count == 2:
+		cameraSKY.current = false
 		cameraFirstPerson.current = false
 		cameraThirdPerson.current = true
 		camera_display = cameraThirdPerson
-	else:
-		cameraFirstPerson.current = true
+
+	elif camera_count == 3:
 		cameraThirdPerson.current = false
-		camera_display = cameraFirstPerson
+		cameraFirstPerson.current = false
+		cameraSKY.current = true
+		camera_display = cameraSKY
+	
+	
 		

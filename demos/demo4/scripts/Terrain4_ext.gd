@@ -12,8 +12,9 @@ func _ready():
 #	chunks = _chunks
 
 func _get_chunk_coords(_position, _chunk_size):
-	
-	return Vector3(floor(_position.x / (_chunk_size)), 0, floor(_position.z / _chunk_size))
+	#print("Math: ",_position.x / (_chunk_size))
+	#print("Floor: ",floor(_position.x / (_chunk_size)))
+	return Vector3(round((_position.x / _chunk_size)), 0, round((_position.z / _chunk_size)))
 
 func _load_chunk(_chunk_coords, _chunks:Dictionary, _chunks_node):
 	var chunk = _chunks[_chunk_coords]
@@ -129,8 +130,3 @@ func _save_heightmap_and_normal_map(heightmap, normalmap): #chunk_size, _heightm
 
 	heightmap_image.save_png(height_map_path)
 	normal_map_image.save_png(normal_map_path)
-
-
-
-
-
