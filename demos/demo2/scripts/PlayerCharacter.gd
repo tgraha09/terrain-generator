@@ -17,14 +17,25 @@ func _ready():
 func _physics_process(delta):
 	var horizontal_velocity = Input.get_vector("move_left", "move_right", "move_forward", "move_backward").normalized() * speed
 	velocity = horizontal_velocity.x * transform.basis.x + horizontal_velocity.y * transform.basis.z
-	if is_on_floor():
+	if Input.is_action_just_pressed("Space"):
+		velocity_y += jump_velocity
+	elif Input.is_action_just_released("Space"):
 		velocity_y = 0
-		if Input.is_action_just_pressed("player_jump"): 
+
+	
+	if Input.is_action_just_pressed("LShift"):
+		velocity_y -= jump_velocity
+	elif Input.is_action_just_released("LShift"):
+		velocity_y = 0
+	
+	#if is_on_floor():
+		#velocity_y = 0
+		#if Input.is_action_just_pressed("player_jump"): 
 			##print("jump")
-			velocity_y = jump_velocity
+			#velocity_y = jump_velocity
 			
-	else:
-		velocity_y -= gravity * delta
+	#else:
+		#velocity_y -= gravity * delta
 	velocity.y = velocity_y
 	move_and_slide()
 	if Input.is_action_just_pressed("ui_cancel"): 

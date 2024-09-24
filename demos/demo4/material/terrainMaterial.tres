@@ -1,7 +1,0 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://djxwhts4stble"]
-
-[ext_resource type="Shader" path="res://demos/demo4/shaders/clipmap.gdshader" id="1_icp0a"]
-
-[resource]
-render_priority = 0
-shader = ExtResource("1_icp0a")

@@ -1,15 +1,15 @@
 @tool
 extends StaticBody3D
 
-@export var chunk_size:int = 64
-@export var chunk_amount:int = 8
-@export var chunk_radius:int = 3
+@export var chunk_size:int = 8
+@export var chunk_amount:int = 16
+@export var chunk_radius:int = 8
 @export var player_chunk_radius:int = 2:
 	set(value):
 		player_chunk_radius = value
 	get:
 		return player_chunk_radius
-@export var frequency:float = 0.1
+@export var frequency:float = 0.01
 @export var noise_type:int = 3:
 	set(value):
 		
@@ -23,7 +23,7 @@ extends StaticBody3D
 		
 		return noise_type
 
-@export var deformity_level:int = 16
+@export var deformity_level:int = 32
 @export var player_body:Node3D
 
 @export var generate_terrain:bool = false:
@@ -34,24 +34,11 @@ extends StaticBody3D
 	get:
 		return generate_terrain 
 
-@export var template_mesh:PlaneMesh = PlaneMesh.new():
-	set (value):
-		template_mesh = value
-	get: 
-		return template_mesh
-
-@export var chunks_node:Node = Node.new():
+@export var chunks_node:MeshInstance3D = MeshInstance3D.new():
 	set (value):
 		chunks_node = value
 	get: 
 		return chunks_node
-
-@export var template_texture:ImageTexture3D = ImageTexture3D.new():
-	set (value):
-		template_texture = value
-
-	get: 
-		return template_texture
 
 @export var collision_shape:CollisionShape3D = CollisionShape3D.new():
 	set (value):
@@ -59,22 +46,9 @@ extends StaticBody3D
 	get: 
 		return collision_shape
 
-@onready var faces# = template_mesh.get_faces()
-@onready var snap# = Vector3.ONE * template_mesh.size.x/2
-
 @export var ext:StaticBody3D:
 	get:
 		return load("res://demos/demo4/scripts/Terrain4_ext.gd").new()
-@export var textures_dir:String = "res://demos/demo4/textures/":
-	get:
-		return "res://demos/demo4/textures/"
-@export var height_map_path:String = "res://demos/demo4/textures/height_map4.png":
-	get:
-		return "res://demos/demo4/textures/height_map4.png"
-
-@export var normal_map_path:String = "res://demos/demo4/textures/normal_map4.png":
-	get:
-		return "res://demos/demo4/textures/normal_map4.png"
 
 @export var chunks :Dictionary = {}
 
@@ -88,15 +62,23 @@ var origin_position
 var previous_player_position
 var red 
 var blue
-#ed.albedo_color = Color.RED
-# Called when the node enters the scene tree for the first time.
+
+@export var terrain_shader:Shader = Shader.new(): #load("res://demos/demo4/shaders/terrain_shader.gdshader"):
+	set (value):
+		terrain_shader = value
+	get: 
+		return terrain_shader
 
 func _ready():
 	generate_terrain = true
-	
+	#queue_free()
 	_initialize()
+	#add_child(chunks_node)
+	#print(self)
 
 func _initialize():
+	#terrain_shader = load("res://demos/demo4/shaders/terrain_shader.gdshader")
+	#print("TPE: ",typeof(terrain_shader))
 	red = StandardMaterial3D.new()
 	blue = StandardMaterial3D.new()
 	red.albedo_color = Color.RED
@@ -111,26 +93,15 @@ func _initialize():
 	noise.frequency = frequency
 	noise.seed = randi() 
 	#chunks = []
-	#DirAccess.remove_absolute(normal_map_path)
-	chunks_node = get_node_or_null("Chunks") #Chunks
-	if chunks_node == null:
-		chunks_node = Node.new()
-		chunks_node.name = "Chunks"
-		self.add_child(chunks_node)
-		chunks_node.set_owner(self)
-		print("created chunks node")
-	# Clear existing chunks
+	
 	for child in chunks_node.get_children():
 		chunks_node.remove_child(child)
-		#chunks_node.queue_free()
-		#print("deleted child: " + str(child))
-	#print("Terrain origin_position: " + str(origin_position))
+
 	_generate_chunks()
 	print("_generate_chunks has finished")
 	_init_chunks()
 	print("_init_chunks has finished")
 
-	#print("player_chunk_position: " + str(player_chunk_position))
 
 func _process(delta):
 	if(generate_terrain):
@@ -138,43 +109,42 @@ func _process(delta):
 	#_init_chunks()
 	#pass
 
-func get_point_in_front(distance):
-	var direction = player_body.global_transform.basis.z* -1  # Get the direction the player is facing
-	var point_in_front = player_body.global_transform.origin + direction * distance
-	return point_in_front
+func resize_terrain(_frac):
+	chunk_amount = chunk_amount + (chunk_amount/_frac)
+	print("chunk_amount: " + str(chunk_amount))
+	_generate_chunks()
 
 func oberserve_player_movement():
 	#print("player_chunk_position: " + str(player_chunk_position))
 	player_chunk_position = ext._get_chunk_coords(player_body.global_position, chunk_size)*chunk_size
 	var player_radius = player_chunk_radius
-	#var point  = get_point_in_front(chunk_size*player_radius) #* (chunk_size*player_radius)
-
 	var surrounding_player_offsets = []
-			#var unloading_chunks = []
-	
+	var surrounding_player_chunks = []
 	if previous_player_position != player_body.global_position:
 		for x in range(-player_radius, player_radius):#chunk_amount:
 			for z in range(-player_radius, player_radius):#chunk_amount:
 				var offset = Vector3((player_chunk_position.x + (x*chunk_size)), 0, player_chunk_position.z + (z * chunk_size)) #adjus to player pos
 				surrounding_player_offsets.append(offset)
 				if !chunks.has(offset):
-					#print("offset: " + str(offset))
-					#var generated_chunk = _generate_chunk(offset)
-					#generated_chunk.instance.material_override = red
-					#chunks[offset] = generated_chunk
-					#chunks_node.add_child(generated_chunk.instance)
-					chunk_amount += chunk_amount/4
-					#print("chunk_amount: " + str(chunk_amount))
-					_generate_chunks()
+					#resize_terrain(4)
+					var welp = null 
 				elif chunks.has(offset):
-					chunks[offset].instance.material_override = blue
+					#chunks[offset].instance.material_override = terrain_shader#blue
 					if !chunks[offset].instance.is_inside_tree():
+						surrounding_player_chunks.append({
+							offset = offset,
+							instance = chunks[offset].instance
+						})
 						chunks_node.add_child(chunks[offset].instance)
-
+		
 		for key in chunks:
 			var chunk = chunks[key]
 			if chunk.instance.is_inside_tree() && !surrounding_player_offsets.has(key):
+				if chunk.isSpawned== true:
+					chunk.isSpawned = false
+					#print("chunk is spawned")
 				#chunk.instance.queue_free()
+				#print("key: " + str(key))
 				chunks_node.remove_child(chunk.instance)
 				#chunks[key].instance.material_override = red
 				
@@ -209,15 +179,12 @@ func _init_chunks():
 					if 	!surrounding_chunks.has(chunk_coords) && !chunks[chunk_coords].instance.is_inside_tree():
 						var chunk = chunks[chunk_coords]#.instance
 						surrounding_chunks.append(chunk)
-
-					elif !surrounding_chunks.has(chunk_coords) && chunks[chunk_coords].instance.is_inside_tree():
-						var chunk = chunks[chunk_coords]#.instance
-						unloading_chunks.append(chunk)
+						
 
 		#adding surroundig chunks
 		for chunk in surrounding_chunks:
 			chunks_node.add_child(chunk.instance)
-
+			chunks[chunk.name].isSpawned = true
 
 
 func _generate_chunks():
@@ -235,24 +202,15 @@ func _generate_chunks():
 				#print("offset: " + str(offset))
 				var instance = _generate_chunk(offset)
 				instances.append(instance)
-
 	for chunk in instances:
-		#chunks_node.add_child(chunk.instance)
-		#print("chunk: " + str(chunk.name))
 		chunks[chunk.name] = chunk
 		#print("chunks: " + str(chunks))
 		pass
-	#print("chunks: " + str(chunks))
-	#await get_tree().process_frame
-	#.create_timer(1.0).timeout
+
 
 func _generate_chunk(offset):
-	if template_mesh == null:
-		print("creating template mesh")
-		template_mesh = PlaneMesh.new()
 
 	var plane_mesh = PlaneMesh.new()
-	template_mesh = plane_mesh
 	
 	plane_mesh.size = Vector2.ONE * chunk_size
 	plane_mesh.size.x = chunk_size
@@ -269,15 +227,22 @@ func _generate_chunk(offset):
 	vertices = PackedVector3Array(data[ArrayMesh.ARRAY_VERTEX])
 	var heightmap:Array = []
 	#var normalmap:Array = []
+	var max_height = 0
+	var min_height = 0
 	for i in vertices.size():
 		var vertex = vertices[i]
 		#print("vertex: " + str(vertex))
 		var height = noise.get_noise_2d(vertex.x + offset.x, vertex.z + offset.z) * deformity_level
 		vertices[i].y = height
+		if height > max_height:
+			max_height = height
+		if height < min_height:
+			min_height = height
 		heightmap.append(height)
 	vertices = PackedVector3Array(vertices)
 	data[ArrayMesh.ARRAY_VERTEX] = vertices
-
+	#print("max_height: " + str(max_height))
+	#print("min_height: " + str(min_height))
 	var array_mesh = ArrayMesh.new()
 	array_mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, data)
 	
@@ -289,9 +254,10 @@ func _generate_chunk(offset):
 	var collision_polygon = ConvexPolygonShape3D.new()
 	collision_polygon.set_points(vertices)
 	collision_shape = CollisionShape3D.new()
-	
+	#collision_shape.visible = false
 	var shape_owner = collision_shape
 	shape_owner.shape = collision_polygon
+	#shape_owner.visible = false
 	chunk_instance.create_trimesh_collision()
 	chunk_instance.add_child(shape_owner)
 	collision_shape = shape_owner
@@ -300,9 +266,18 @@ func _generate_chunk(offset):
 	chunk_instance.transform.origin = Vector3(offset.x + chunk_size / 2.0, 0, offset.z + chunk_size / 2.0)  # Update translation to Transform.origin
 	#chunk_instance.name = str(offset)
 	#print(chunk_instance.name)
+	var material = ShaderMaterial.new()
+	
+	#shader.code = terrain_shader_code.source_code
+	material.shader = terrain_shader
+	chunk_instance.material_override = material
+	#update_shader(chunk_instance.material_override, max_height, min_height)
 	return {
 		instance = chunk_instance,
-		name = offset
+		name = offset,
+		offset = offset,
+		isSpawned = false,
+
 		#heightmap = heightmap,
-		#normalmap = normalmap
+		#normalmap = normalmap 
 	}

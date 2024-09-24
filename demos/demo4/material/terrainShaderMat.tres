@@ -1,0 +1,16 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cjm7w1il35xhc"]
+
+[ext_resource type="Shader" path="res://demos/demo4/shaders/terrain_shader.gdshader" id="1_ldv57"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_ldv57")
+shader_parameter/height_scale = 0.1
+shader_parameter/grass_color = Vector3(0.2, 0.6, 0.2)
+shader_parameter/water_color = Vector3(0.2, 0.4, 0.8)
+shader_parameter/dirt_color = Vector3(0.6, 0.4, 0.2)
+shader_parameter/water_threshold = 0.0
+shader_parameter/dirt_threshold = 0.6
+shader_parameter/grass_threshold = 0.9
+shader_parameter/min_height = 0.0
+shader_parameter/max_height = 1.0
