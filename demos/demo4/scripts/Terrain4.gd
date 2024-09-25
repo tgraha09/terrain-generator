@@ -31,6 +31,7 @@ extends StaticBody3D
 		generate_terrain = value
 		if(generate_terrain):
 			_initialize()
+			#generate_terrain = false
 	get:
 		return generate_terrain 
 
@@ -40,17 +41,11 @@ extends StaticBody3D
 	get: 
 		return chunks_node
 
-@export var collision_shape:CollisionShape3D = CollisionShape3D.new():
-	set (value):
-		collision_shape = value
-	get: 
-		return collision_shape
-
-@export var ext:StaticBody3D:
+@export var ext:StaticBody3D: # = load("res://demos/demo4/scripts/Terrain4_ext.gd").new()
 	get:
 		return load("res://demos/demo4/scripts/Terrain4_ext.gd").new()
 
-@export var chunks :Dictionary = {}
+var chunks :Dictionary = {}
 
 
 var surrounding_chunks
@@ -93,7 +88,11 @@ func _initialize():
 	noise.frequency = frequency
 	noise.seed = randi() 
 	#chunks = []
-	
+	chunks_node = get_node_or_null("Chunks")
+	if chunks_node == null:
+		print("created chunks node")
+		return
+		
 	for child in chunks_node.get_children():
 		chunks_node.remove_child(child)
 
@@ -114,7 +113,7 @@ func resize_terrain(_frac):
 	print("chunk_amount: " + str(chunk_amount))
 	_generate_chunks()
 
-func oberserve_player_movement():
+func oberserve_player_movement(): 
 	#print("player_chunk_position: " + str(player_chunk_position))
 	player_chunk_position = ext._get_chunk_coords(player_body.global_position, chunk_size)*chunk_size
 	var player_radius = player_chunk_radius
@@ -151,9 +150,6 @@ func oberserve_player_movement():
 	previous_player_position = player_body.global_position	
 	previous_chunk_position = player_chunk_position
 
-
-
-
 func _init_chunks():
 	
 	if chunks.size() == 0:
@@ -163,7 +159,6 @@ func _init_chunks():
 		print("no physics body")
 		return
 	else:
-
 		#player_chunk_position = ext._get_chunk_coords(player_chunk_position, chunk_size)
 		var origin_chunk_position:Vector3 = ext._get_chunk_coords(origin_position, chunk_size)
 		
@@ -219,8 +214,6 @@ func _generate_chunk(offset):
 	plane_mesh.subdivide_width = chunk_size - 1
 	plane_mesh.subdivide_depth = chunk_size - 1
 
-	
-
 	var surface_tool = SurfaceTool.new()
 	surface_tool.create_from(plane_mesh, 0)
 	var data = surface_tool.commit_to_arrays()
@@ -253,14 +246,14 @@ func _generate_chunk(offset):
 	#collision mesh
 	var collision_polygon = ConvexPolygonShape3D.new()
 	collision_polygon.set_points(vertices)
-	collision_shape = CollisionShape3D.new()
+	
 	#collision_shape.visible = false
-	var shape_owner = collision_shape
+	var shape_owner = CollisionShape3D.new()
 	shape_owner.shape = collision_polygon
 	#shape_owner.visible = false
 	chunk_instance.create_trimesh_collision()
 	chunk_instance.add_child(shape_owner)
-	collision_shape = shape_owner
+	
 	#update to chunk origin
 	
 	chunk_instance.transform.origin = Vector3(offset.x + chunk_size / 2.0, 0, offset.z + chunk_size / 2.0)  # Update translation to Transform.origin
@@ -277,7 +270,6 @@ func _generate_chunk(offset):
 		name = offset,
 		offset = offset,
 		isSpawned = false,
-
 		#heightmap = heightmap,
 		#normalmap = normalmap 
 	}
