@@ -1,0 +1,7 @@
+[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://cvhbgarlp7abm"]
+
+[ext_resource type="Shader" path="res://demos/demo6_TerrainGeneration2/shaders/plane_shader.gdshader" id="1_ry4o7"]
+
+[resource]
+render_priority = 0
+shader = ExtResource("1_ry4o7")

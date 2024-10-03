@@ -57,12 +57,27 @@ var origin_position
 var previous_player_position
 var red 
 var blue
+#@export var grass_color: Color # Color = Color(0.2, 0.8, 0.2)
+#@export var water_color: Color
 
-@export var terrain_shader:Shader = Shader.new(): #load("res://demos/demo4/shaders/terrain_shader.gdshader"):
+
+#@export var water_color = Color(0.2, 0.4, 0.8)
+#@export var dirt_color = Color(0.6, 0.4, 0.2)
+
+
+		
+@export var terrain_material:Material: #= load("res://demos/demo4/shaders/terrain_material.tres"): #load("res://demos/demo4/shaders/terrain_shader.gdshader"):
+	set (value):
+		terrain_material = value
+	get: 
+		return terrain_material
+
+
+"@export var terrain_shader:Shader:# = load():
 	set (value):
 		terrain_shader = value
 	get: 
-		return terrain_shader
+		return terrain_shader"
 
 func _ready():
 	generate_terrain = true
@@ -72,6 +87,7 @@ func _ready():
 	#print(self)
 
 func _initialize():
+	
 	#terrain_shader = load("res://demos/demo4/shaders/terrain_shader.gdshader")
 	#print("TPE: ",typeof(terrain_shader))
 	red = StandardMaterial3D.new()
@@ -168,13 +184,10 @@ func _init_chunks():
 		for x in range(-chunk_radius, chunk_radius):
 			for z in range(-chunk_radius, chunk_radius):
 				var chunk_coords = Vector3((origin_chunk_position.x + x), 0, (origin_chunk_position.z + z))*chunk_size 
-
 				if 	chunks.has(chunk_coords):
-
 					if 	!surrounding_chunks.has(chunk_coords) && !chunks[chunk_coords].instance.is_inside_tree():
 						var chunk = chunks[chunk_coords]#.instance
 						surrounding_chunks.append(chunk)
-						
 
 		#adding surroundig chunks
 		for chunk in surrounding_chunks:
@@ -194,23 +207,18 @@ func _generate_chunks():
 			#offset = Vector3((player_chunk_position.x + x), 0, player_chunk_position.z + z) * chunk_size #adjus to player pos
 			offset = Vector3(x, 0, z) * chunk_size #adjust to chunkj size
 			if !chunks.has(offset):
-				#print("offset: " + str(offset))
 				var instance = _generate_chunk(offset)
 				instances.append(instance)
 	for chunk in instances:
 		chunks[chunk.name] = chunk
-		#print("chunks: " + str(chunks))
 		pass
 
 
 func _generate_chunk(offset):
-
 	var plane_mesh = PlaneMesh.new()
-	
 	plane_mesh.size = Vector2.ONE * chunk_size
 	plane_mesh.size.x = chunk_size
 	plane_mesh.size.y = chunk_size
-
 	plane_mesh.subdivide_width = chunk_size - 1
 	plane_mesh.subdivide_depth = chunk_size - 1
 
@@ -255,15 +263,20 @@ func _generate_chunk(offset):
 	chunk_instance.add_child(shape_owner)
 	
 	#update to chunk origin
-	
 	chunk_instance.transform.origin = Vector3(offset.x + chunk_size / 2.0, 0, offset.z + chunk_size / 2.0)  # Update translation to Transform.origin
 	#chunk_instance.name = str(offset)
 	#print(chunk_instance.name)
-	var material = ShaderMaterial.new()
+	#var material = ShaderMaterial.new()
 	
 	#shader.code = terrain_shader_code.source_code
-	material.shader = terrain_shader
-	chunk_instance.material_override = material
+	#material.shader = terrain_shader
+	#terrain_material.shader = terrain_shader
+	#terrain_material.set_shader_parameter("grass_color", grass_color)
+	#terrain_material.set_shader_parameter("water_color", water_color)
+	#terrain_material.set_shader_parameter("dirt_color", dirt_color)
+
+	chunk_instance.material_override = terrain_material
+	#chunk_instance.material_override = material
 	#update_shader(chunk_instance.material_override, max_height, min_height)
 	return {
 		instance = chunk_instance,

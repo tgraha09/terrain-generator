@@ -2,9 +2,10 @@ shader_type spatial;
 
 uniform sampler2D heightmap;
 uniform float height_scale = 0.1;
-uniform vec3 grass_color = vec3(0.2, 0.6, 0.2); // green
-uniform vec3 water_color = vec3(0.2, 0.4, 0.8); // blue
-uniform vec3 dirt_color = vec3(0.6, 0.4, 0.2); // brown
+
+uniform vec3 grass_color: source_color;// = vec3(0.2, 0.6, 0.2); // green
+uniform vec3 water_color: source_color; //= vec3(0.1, 0.2, 0.8); // blue
+uniform vec3 dirt_color: source_color;// = vec3(0.6, 0.4, 0.2); // brown
 
 uniform float water_threshold = 0.0; // height value below which is water
 uniform float dirt_threshold = 0.6; // height value above which is dirt

@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3 uid="uid://53k64dn3bjue"]
+
+[ext_resource type="Shader" uid="uid://n8fl42t21sxq" path="res://demos/demo5_OceanWater/shaders/water_shader_material2.tres" id="1_jwmly"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_70sqb"]
+render_priority = 0
+shader = ExtResource("1_jwmly")
+shader_parameter/ColorParameter = Color(0, 0.266667, 0.533333, 1)
+shader_parameter/ColorParameter2 = Color(0.694519, 0.048172, 0.613901, 1)
+shader_parameter/Fresnel_Intensity = 1.75
+
+[sub_resource type="QuadMesh" id="QuadMesh_c4j2d"]
+material = SubResource("ShaderMaterial_70sqb")
+size = Vector2(12, 12)
+subdivide_width = 200
+subdivide_depth = 200
+orientation = 1
+
+[node name="WaterPlane" type="MeshInstance3D"]
+cast_shadow = 0
+mesh = SubResource("QuadMesh_c4j2d")

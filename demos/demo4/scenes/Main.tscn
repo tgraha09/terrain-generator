@@ -1,8 +1,9 @@
-[gd_scene load_steps=8 format=3 uid="uid://dd5nx7fcc1del"]
+[gd_scene load_steps=9 format=3 uid="uid://dd5nx7fcc1del"]
 
 [ext_resource type="Script" path="res://demos/demo4/scripts/Terrain4.gd" id="1_jx8wn"]
 [ext_resource type="PackedScene" uid="uid://di2sqd72jmgyv" path="res://demos/demo2/scenes/PlayerCharacter.tscn" id="2_cgkif"]
-[ext_resource type="Shader" path="res://demos/demo4/shaders/terrain_shader.gdshader" id="3_khrbd"]
+[ext_resource type="PackedScene" uid="uid://53k64dn3bjue" path="res://demos/demo5_OceanWater/scenes/WaterPlane.tscn" id="4_u17qx"]
+[ext_resource type="Material" uid="uid://cjm7w1il35xhc" path="res://demos/demo4/shaders/terrain_material.tres" id="4_xjcl5"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_jupyh"]
 sky_top_color = Color(0.423306, 0.380555, 0.776964, 1)
@@ -16,9 +17,7 @@ sky = SubResource("Sky_cgd0o")
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_fy8he"]
 
-[node name="World" type="Node3D"]
-
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="World" type="WorldEnvironment"]
 environment = SubResource("Environment_03nxh")
 camera_attributes = SubResource("CameraAttributesPractical_fy8he")
 
@@ -32,11 +31,17 @@ jump_velocity = 10.0
 
 [node name="Terrain" type="StaticBody3D" parent="." node_paths=PackedStringArray("player_body", "chunks_node", "ext")]
 script = ExtResource("1_jx8wn")
+chunk_size = 12
 chunk_radius = 16
-player_chunk_radius = 16
+player_chunk_radius = 8
 player_body = NodePath("../PlayerCharacter")
+generate_terrain = true
 chunks_node = NodePath("Chunks")
 ext = NodePath("")
-terrain_shader = ExtResource("3_khrbd")
+terrain_material = ExtResource("4_xjcl5")
 
 [node name="Chunks" type="MeshInstance3D" parent="Terrain"]
+material_override = ExtResource("4_xjcl5")
+
+[node name="WaterPlane" parent="." instance=ExtResource("4_u17qx")]
+transform = Transform3D(16, 0, 0, 0, 1, 0, 0, 0, 16, 0, 0, 0)
