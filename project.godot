@@ -11,8 +11,13 @@ config_version=5
 [application]
 
 config/name="Rogue Companions"
+run/main_scene="uid://bb3oluhsjhm3m"
 config/features=PackedStringArray("4.4", "GL Compatibility")
 config/icon="res://icon.svg"
+
+[autoload]
+
+MovementLogic="*res://Scripts/Player/player_movement.gd"
 
 [rendering]
 
