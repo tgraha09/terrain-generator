@@ -38,3 +38,10 @@ material_override = SubResource("StandardMaterial3D_fo5ed")
 size = Vector3(1000, 1, 1000)
 
 [node name="Player" parent="." instance=ExtResource("1_a02cp")]
+motion_mode = 1
+
+[node name="AnimationTree" parent="Player/visuals/Player_base" index="2"]
+parameters/idle_blend_walk/Walking/blend_amount = 0
+
+[editable path="Player"]
+[editable path="Player/visuals/Player_base"]

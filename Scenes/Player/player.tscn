@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3 uid="uid://c7ooeo1wjjhl6"]
+[gd_scene load_steps=5 format=3 uid="uid://c7ooeo1wjjhl6"]
 
 [ext_resource type="Script" uid="uid://darxyiycvvkgo" path="res://Scripts/Player/player.gd" id="1_uvnfx"]
-[ext_resource type="PackedScene" uid="uid://00c0cypfwqq3" path="res://Assets/Models/Player/Player.glb" id="2_a3d8c"]
+[ext_resource type="PackedScene" uid="uid://4jx5p5x7v0lu" path="res://Assets/Models/Player/Player_base.glb" id="2_a3d8c"]
+[ext_resource type="AnimationNodeStateMachine" uid="uid://cwn7bg7i2ror8" path="res://Assets/Animation/Tree Roots/NodeStateMachinetres.tres" id="3_xpcdj"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_a3d8c"]
 height = 1.8
@@ -16,10 +17,19 @@ shape = SubResource("CylinderShape3D_a3d8c")
 
 [node name="visuals" type="Node3D" parent="."]
 
-[node name="Player_model" parent="visuals" instance=ExtResource("2_a3d8c")]
-transform = Transform3D(-0.01, 0, -8.74228e-10, 0, 0.01, 0, 8.74228e-10, 0, -0.01, 0, 0.9, 0)
+[node name="Player_base" parent="visuals" instance=ExtResource("2_a3d8c")]
+transform = Transform3D(-1, 0, -8.74228e-08, 0, 1, 0, 8.74228e-08, 0, -1, 0, 0, 0)
+
+[node name="AnimationTree" type="AnimationTree" parent="visuals/Player_base"]
+tree_root = ExtResource("3_xpcdj")
+anim_player = NodePath("../AnimationPlayer")
+parameters/conditions/idle_to_walk = false
+parameters/conditions/walk_to_idle = false
+parameters/idle_blend_walk/Walking/blend_amount = 0.0
 
 [node name="camera_mount" type="Node3D" parent="."]
 
 [node name="Camera3D" type="Camera3D" parent="camera_mount"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 2.25)
+
+[editable path="visuals/Player_base"]
