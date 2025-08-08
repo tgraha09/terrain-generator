@@ -4,7 +4,7 @@ extends CharacterBody3D
 @onready var anim_tree: AnimationTree = $visuals/Player_base/AnimationTree
 
 @export var blend_speed := 5.0
-@export var speed := 5.0
+@export var speed := 1
 
 var player_logic = MovementLogic
 var first_time := false
@@ -13,18 +13,15 @@ func _ready():
 	if not first_time:
 		print("Started Player Process")
 		# Initialize references FIRST
+		anim_tree.active = true
 		player_logic.animation_player = anim_player
 		player_logic.animation_tree = anim_tree
-
-		# Activate AnimationTree BEFORE setting parameters
-		anim_tree.active = true
-
-		# Force initial state (order matters!)
+		player_logic.set("speed", speed)
 		player_logic.change_state(player_logic.States.IDLE)
-		#anim_tree.set("parameters/idle_blend_walk/Walking/blend_amount", 0.0)
-		
-		# Debug: Print all parameters to verify paths
-		
+		player_logic.animation_tree.set("parameters/movement_tree/movement/blend_amount", -1.0)
+		#player_logic.animation_player.connect("animation_finished", player_logic._on_animation_finished, 0)
+		if not player_logic.animation_player.is_connected("animation_finished", player_logic._on_animation_finished):
+			player_logic.animation_player.connect("animation_finished", player_logic._on_animation_finished)
 		first_time = true
 
 func _physics_process(delta: float):
