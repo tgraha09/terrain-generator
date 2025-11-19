@@ -1,21 +1,24 @@
-[gd_resource type="AnimationNodeStateMachine" load_steps=10 format=3 uid="uid://cwn7bg7i2ror8"]
+[gd_resource type="AnimationNodeStateMachine" load_steps=13 format=3 uid="uid://cwn7bg7i2ror8"]
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_7whkd"]
-animation = &"Jumping"
+animation = &"Jump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_v8l57"]
+animation = &"Walk Backwards"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_dd0ac"]
 animation = &"Idle"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_cl7bx"]
-animation = &"Running"
+animation = &"Run"
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_0u5uq"]
-animation = &"Walking"
+animation = &"Walk"
 
 [sub_resource type="AnimationNodeBlend3" id="AnimationNodeBlend3_cl7bx"]
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_gk6dx"]
-graph_offset = Vector2(-169.793, 13.1381)
+graph_offset = Vector2(-213.964, 149.385)
 "nodes/Idle Anim/node" = SubResource("AnimationNodeAnimation_dd0ac")
 "nodes/Idle Anim/position" = Vector2(740, 160)
 "nodes/Run Anim/node" = SubResource("AnimationNodeAnimation_cl7bx")
@@ -29,6 +32,7 @@ node_connections = [&"movement", 0, &"Idle Anim", &"movement", 1, &"Walk Anim", 
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cl7bx"]
 advance_mode = 2
+advance_condition = &"start"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_v8l57"]
 advance_mode = 2
@@ -39,12 +43,22 @@ xfade_time = 0.2
 switch_mode = 2
 advance_mode = 2
 
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_e7e4y"]
+advance_mode = 2
+advance_condition = &"start_walking_back"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_f76nq"]
+advance_mode = 2
+advance_condition = &"stop_walking_back"
+
 [resource]
 states/End/position = Vector2(519, 81)
-states/Jumping/node = SubResource("AnimationNodeAnimation_7whkd")
-states/Jumping/position = Vector2(-1.04395, 193)
-states/Start/position = Vector2(-272, 81)
+states/Jump/node = SubResource("AnimationNodeAnimation_7whkd")
+states/Jump/position = Vector2(-1.04395, 193)
+states/Start/position = Vector2(-275, 81)
+"states/Walk Backwards/node" = SubResource("AnimationNodeAnimation_v8l57")
+"states/Walk Backwards/position" = Vector2(-14, -25)
 states/movement_tree/node = SubResource("AnimationNodeBlendTree_gk6dx")
 states/movement_tree/position = Vector2(-14, 81)
-transitions = ["Start", "movement_tree", SubResource("AnimationNodeStateMachineTransition_cl7bx"), "movement_tree", "Jumping", SubResource("AnimationNodeStateMachineTransition_v8l57"), "Jumping", "movement_tree", SubResource("AnimationNodeStateMachineTransition_0j4a1")]
-graph_offset = Vector2(-983.044, -73)
+transitions = ["Start", "movement_tree", SubResource("AnimationNodeStateMachineTransition_cl7bx"), "movement_tree", "Jump", SubResource("AnimationNodeStateMachineTransition_v8l57"), "Jump", "movement_tree", SubResource("AnimationNodeStateMachineTransition_0j4a1"), "movement_tree", "Walk Backwards", SubResource("AnimationNodeStateMachineTransition_e7e4y"), "Walk Backwards", "movement_tree", SubResource("AnimationNodeStateMachineTransition_f76nq")]
+graph_offset = Vector2(-1233.04, -107)

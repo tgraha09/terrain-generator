@@ -5,7 +5,7 @@ extends Node
 var animation_player: AnimationPlayer
 var animation_tree: AnimationTree
 
-enum States {IDLE, RUN, JUMP, WALK, NONE}
+enum States {IDLE, RUN, JUMP, WALKFORDWARD, WALKBACKWARD, NONE}
 var currentState = States.NONE
 
 # Movement parameters
@@ -17,6 +17,11 @@ var speed = 0
 const XFADE_TIME = 0.2
 const condition_path = "parameters/conditions/"
 const movment_blend = "parameters/movement_tree/movement/blend_amount"
+var jump_released = true
+
+#speed = speed
+
+
 
 func change_state(newState):
 	currentState = newState
@@ -28,8 +33,10 @@ func handle_states(_delta, _blend_speed):
 	match currentState:
 		States.IDLE:
 			_idle()
-		States.WALK:
-			_walk()
+		States.WALKFORDWARD:
+			_walkForward()
+		States.WALKBACKWARD:
+			_walkBackward()
 		States.RUN:
 			_run()
 		States.JUMP:
@@ -42,87 +49,124 @@ func _idle():
 	#print("Idle: ",animation_tree.get("parameters/conditions/idle_to_movement"))
 	var new_blend = lerpf(current_blend, -1.0, delta * blend_speed*2)
 	animation_tree.set(movment_blend, new_blend)
+	
 	#print("current_blend IDLE: ", current_blend)
 	#player_logic.enable_animations({"idle_to_movement":false})
-	if Input.is_action_pressed("jump"):
+	if Input.is_action_pressed("jump") && jump_released:
 		change_state(States.JUMP)
 		#_toggle_animations({"jump": true})
-		animation_tree.set("parameters/conditions/jump", true)
-		animation_tree["parameters/playback"].travel("Jumping", 0.1)
+		jump_released = false
+	if Input.is_action_just_released(("jump")):
+		jump_released = true
+		print("Jump released")
+		#is_jumping = true
 	if Input.is_action_pressed("forward"):
-		change_state(States.WALK)
-
+		change_state(States.WALKFORDWARD)
+	if Input.is_action_pressed("backward"):
+		change_state(States.WALKBACKWARD)
 	
 
 
-func _walk():
+func _walkForward():
 	#print("WALK")
 	# Only update blend if in transition state
 	var current_blend = animation_tree.get(movment_blend)
 	#print("Walk: ", current_blend)
 	var new_blend = lerpf(current_blend, 0.0, delta * blend_speed)
 	animation_tree.set(movment_blend, new_blend)
-	if Input.is_action_pressed("jump"):
+	if Input.is_action_pressed("jump") && jump_released:
 		change_state(States.JUMP)
+		jump_released = false
 		#_toggle_animations({"jump": true})
-		animation_tree.set("parameters/conditions/jump", true)
-		animation_tree["parameters/playback"].travel("Jumping", 0.2)
+
+		#is_jumping = true
 	if Input.is_action_just_released("forward"):
 		change_state(States.IDLE)
-
+	if Input.is_action_just_released(("jump")):
+		jump_released = true
+		print("Jump released")
 	elif Input.is_action_pressed("forward") && Input.is_action_pressed("shift"):
 		change_state(States.RUN)
+		speed = speed * 2
+
+func _walkBackward():
+	print("walkBackward")
+	# Only update blend if in transition state
+	animation_tree.set("parameters/conditions/start_walk_back", false)
+	animation_tree.set("parameters/conditions/stop_walking_back", false)
+	#animation_tree["parameters/playback"].travel("Walk Backwards", 0.1)
+
+	if Input.is_action_pressed("jump")  && jump_released:
+		change_state(States.JUMP)
+		jump_released = false
+		#_toggle_animations({"jump": true})
+		
+	if Input.is_action_just_released("backward"):
+		change_state(States.IDLE)
+		#animation_tree.set("parameters/conditions/walk_back", false)
+		#animation_tree.set("parameters/conditions/Is_walking_back", true)
+		print("Backward released")
+
 
 func _run():
 	var current_blend = animation_tree.get(movment_blend)
 	print("Run: ", current_blend)
+	
 	var new_blend = lerpf(current_blend, 1.0, delta * blend_speed*speed)
 	animation_tree.set(movment_blend, new_blend)
 	
-	if Input.is_action_pressed("jump"):
+	if Input.is_action_pressed("jump")  && jump_released:
 		change_state(States.JUMP)
+		jump_released = false
 		#_toggle_animations({"jump": true})
-		animation_tree.set("parameters/conditions/jump", true)
-		animation_tree["parameters/playback"].travel("Jumping", 0.2)
+		
+		#is_jumping = true
+	if Input.is_action_just_released(("jump")):
+		jump_released = true
+		print("Jump released")
 	# Similar to walk but with different blend parameters
 	if Input.is_action_just_released("shift"):
-		change_state(States.WALK)
+		change_state(States.WALKFORDWARD)
 	elif not Input.is_anything_pressed() || Input.is_action_just_released("forward"):
 		change_state(States.IDLE)
 
 func _jump():
-	
-	#var current_animation = animation_tree["parameters/playback"].get_current_node()
-	
-	
-	#animation_tree["parameters/playback"].travel("movement_tree", .3)
+	print("Jump*")
+	animation_tree.set("parameters/conditions/jump", true)
+	animation_tree["parameters/playback"].travel("Jump", 0.2)
 	if Input.is_action_pressed("forward"):
-		#_toggle_animations({"jump": false})
 		animation_tree.set("parameters/conditions/jump", false)
-		change_state(States.WALK if !Input.is_action_pressed("shift") else States.RUN)
+		change_state(States.WALKFORDWARD if !Input.is_action_pressed("shift") else States.RUN)
 	else:
-		#_toggle_animations({"jump": false})
 		animation_tree.set("parameters/conditions/jump", false)
 		change_state(States.IDLE)
-	#if current_animation != "Jumping":
-		#print("Now playing:", current_animation)  # Outputs "Idle", "Walking", etc.
 	
+	#animation_player.current_animation = "Jump"
+	#_on_animation_finished("Jump")
+	#animation_player.current_animation
+
+	#if animation_player.is_connected("animation_finished", _on_animation_finished) && animation_player.animation_finished.get_name() == "Jump":
+		
+		#print("Connected")
+		#animation_player.disconnect("animation_finished", _on_animation_finished)
+		#animation_player.connect("animation_finished", _on_animation_finished)
+	#jump_released = false
 	#if not animation_player.is_connected("animation_finished", _on_animation_finished):
 		#animation_player.connect("animation_finished", _on_animation_finished)
 	# Similar to walk but with different blend parameters
 	#if Input.is_action_just_released("shift"):
-		#change_state(States.WALK)
+		#change_state(States.WALKFORDWARD)
 
 	#elif not Input.is_anything_pressed() || Input.is_action_just_released("forward"):
 		#change_state(States.IDLE)
 
 func _on_animation_finished(anim_name):
 	print("_on_animation_finished")
-	if anim_name == "Jumping":
+	if anim_name == "Jump":
 		animation_tree["parameters/playback"].travel("movement_tree", XFADE_TIME)
-		_toggle_animations({"jump": false})
+		_toggle_conditions({"jump": false})
 		if Input.is_action_pressed("forward"):
-			change_state(States.WALK if !Input.is_action_pressed("shift") else States.RUN)
+			change_state(States.WALKFORDWARD if !Input.is_action_pressed("shift") else States.RUN)
 		else:
 			change_state(States.IDLE)
 
@@ -131,7 +175,7 @@ func _transition_to(anim_name: String, new_state: States):
 	currentState = new_state
 
 	
-func _toggle_animations(_conditions: Dictionary):
+func _toggle_conditions(_conditions: Dictionary):
 	print("trigger_animations")
 	for parameter in animation_tree.get_property_list():
 		#print(parameter.name)
