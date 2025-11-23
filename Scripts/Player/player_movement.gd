@@ -41,6 +41,8 @@ func handle_states(_delta, _blend_speed):
 			_run()
 		States.JUMP:
 			_jump()
+		States.NONE:
+			print("NONE")	
 
 func _idle():
 	#print("IDLE")
@@ -64,6 +66,8 @@ func _idle():
 		change_state(States.WALKFORDWARD)
 	if Input.is_action_pressed("backward"):
 		change_state(States.WALKBACKWARD)
+		#_toggle_conditions({"walk_backwards": true})
+		#animation_tree.set("parameters/conditions/walk_backwards", false)
 	
 
 
@@ -91,9 +95,10 @@ func _walkForward():
 
 func _walkBackward():
 	print("walkBackward")
+	_toggle_conditions({"start_walking_back": true})
+	animation_tree["parameters/playback"].travel("Walk Backwards", 0.2)
 	# Only update blend if in transition state
-	animation_tree.set("parameters/conditions/start_walk_back", false)
-	animation_tree.set("parameters/conditions/stop_walking_back", false)
+	#animation_tree.set("parameters/conditions/walk_backwards", false)
 	#animation_tree["parameters/playback"].travel("Walk Backwards", 0.1)
 
 	if Input.is_action_pressed("jump")  && jump_released:
@@ -103,6 +108,8 @@ func _walkBackward():
 		
 	if Input.is_action_just_released("backward"):
 		change_state(States.IDLE)
+		_toggle_conditions({"stop_walking_back": true})
+		#_toggle_conditions({"stop_walking_back": false})
 		#animation_tree.set("parameters/conditions/walk_back", false)
 		#animation_tree.set("parameters/conditions/Is_walking_back", true)
 		print("Backward released")
@@ -132,7 +139,8 @@ func _run():
 
 func _jump():
 	print("Jump*")
-	animation_tree.set("parameters/conditions/jump", true)
+	_toggle_conditions({"jump": true})
+	#animation_tree.set("parameters/conditions/jump", true)
 	animation_tree["parameters/playback"].travel("Jump", 0.2)
 	if Input.is_action_pressed("forward"):
 		animation_tree.set("parameters/conditions/jump", false)
@@ -180,7 +188,7 @@ func _toggle_conditions(_conditions: Dictionary):
 	for parameter in animation_tree.get_property_list():
 		#print(parameter.name)
 		if parameter.name.begins_with(condition_path) && parameter.type == TYPE_BOOL:
-			#print(parameter.name)
+			print(parameter.name)
 			for condition in _conditions:
 				#print(condition)
 				if parameter.name.contains(condition):

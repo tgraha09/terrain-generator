@@ -17,7 +17,7 @@ func _ready():
 		player_logic.animation_player = anim_player
 		player_logic.animation_tree = anim_tree
 		player_logic.set("speed", speed)
-		player_logic._toggle_conditions({"start":true})
+		player_logic._toggle_conditions({"idle":true})
 		player_logic.change_state(player_logic.States.IDLE)
 		player_logic.animation_tree.set("parameters/movement_tree/movement/blend_amount", -1.0)
 		

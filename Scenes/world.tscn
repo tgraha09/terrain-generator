@@ -163,8 +163,8 @@ bones/63/rotation = Quaternion(0.335241, 2.6341e-08, -1.33439e-07, 0.942132)
 bones/64/position = Vector3(4.04477e-07, 9.27814, 1.08951e-06)
 
 [node name="AnimationTree" parent="Player/visuals/Player_base" index="2"]
-parameters/conditions/start_walking_back = false
-parameters/conditions/stop_walking_back = false
+parameters/conditions/idle = false
+parameters/conditions/start_walk_backwards = false
 parameters/movement_tree/movement/blend_amount = 0
 
 [node name="Box" type="MeshInstance3D" parent="."]

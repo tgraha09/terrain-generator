@@ -32,7 +32,7 @@ node_connections = [&"movement", 0, &"Idle Anim", &"movement", 1, &"Walk Anim", 
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_cl7bx"]
 advance_mode = 2
-advance_condition = &"start"
+advance_condition = &"idle"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_v8l57"]
 advance_mode = 2
@@ -44,10 +44,12 @@ switch_mode = 2
 advance_mode = 2
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_e7e4y"]
+xfade_time = 0.2
 advance_mode = 2
-advance_condition = &"start_walking_back"
+advance_condition = &"start_walk_backwards"
 
 [sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_f76nq"]
+xfade_time = 0.2
 advance_mode = 2
 advance_condition = &"stop_walking_back"
 
@@ -55,10 +57,10 @@ advance_condition = &"stop_walking_back"
 states/End/position = Vector2(519, 81)
 states/Jump/node = SubResource("AnimationNodeAnimation_7whkd")
 states/Jump/position = Vector2(-1.04395, 193)
-states/Start/position = Vector2(-275, 81)
+states/Start/position = Vector2(-276, 74)
 "states/Walk Backwards/node" = SubResource("AnimationNodeAnimation_v8l57")
 "states/Walk Backwards/position" = Vector2(-14, -25)
 states/movement_tree/node = SubResource("AnimationNodeBlendTree_gk6dx")
 states/movement_tree/position = Vector2(-14, 81)
 transitions = ["Start", "movement_tree", SubResource("AnimationNodeStateMachineTransition_cl7bx"), "movement_tree", "Jump", SubResource("AnimationNodeStateMachineTransition_v8l57"), "Jump", "movement_tree", SubResource("AnimationNodeStateMachineTransition_0j4a1"), "movement_tree", "Walk Backwards", SubResource("AnimationNodeStateMachineTransition_e7e4y"), "Walk Backwards", "movement_tree", SubResource("AnimationNodeStateMachineTransition_f76nq")]
-graph_offset = Vector2(-1233.04, -107)
+graph_offset = Vector2(-355.211, -100)
