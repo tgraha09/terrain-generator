@@ -94,7 +94,7 @@ func _walkForward():
 		speed = speed * 2
 
 func _walkBackward():
-	print("walkBackward")
+	#print("walkBackward")
 	_toggle_conditions({"start_walking_back": true})
 	animation_tree["parameters/playback"].travel("Walk Backwards", 0.2)
 	# Only update blend if in transition state
@@ -117,7 +117,7 @@ func _walkBackward():
 
 func _run():
 	var current_blend = animation_tree.get(movment_blend)
-	print("Run: ", current_blend)
+	#print("Run: ", current_blend)
 	
 	var new_blend = lerpf(current_blend, 1.0, delta * blend_speed*6)
 	animation_tree.set(movment_blend, new_blend)
@@ -172,7 +172,7 @@ func _jump():
 		#change_state(States.IDLE)
 
 func _on_animation_finished(anim_name):
-	print("_on_animation_finished")
+	#print("_on_animation_finished")
 	if anim_name == "Jump":
 		animation_tree["parameters/playback"].travel("movement_tree", XFADE_TIME)
 		_toggle_conditions({"jump": false})

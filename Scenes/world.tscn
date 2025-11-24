@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://bb3oluhsjhm3m"]
+[gd_scene load_steps=8 format=3 uid="uid://bb3oluhsjhm3m"]
 
 [ext_resource type="PackedScene" uid="uid://c7ooeo1wjjhl6" path="res://Scenes/Player/player.tscn" id="1_a02cp"]
 
@@ -23,6 +23,8 @@ albedo_color = Color(0, 0, 0, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_a02cp"]
 
+[sub_resource type="BoxShape3D" id="BoxShape3D_a02cp"]
+
 [node name="World" type="Node3D"]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
@@ -37,19 +39,23 @@ environment = SubResource("Environment_8j60k")
 [node name="CSGBox3D" type="CSGBox3D" parent="map"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 material_override = SubResource("StandardMaterial3D_fo5ed")
+use_collision = true
 size = Vector3(1000, 1, 1000)
 
 [node name="Player" parent="." instance=ExtResource("1_a02cp")]
 motion_mode = 1
 blend_speed = 2.0
 speed = 2.0
-
-[node name="AnimationTree" parent="Player/visuals/Player_base" index="2"]
-parameters/movement_tree/movement/blend_amount = 0
+run_speed_multiplier = 2.5
 
 [node name="Box" type="MeshInstance3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10.0572)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, -10)
 mesh = SubResource("BoxMesh_a02cp")
 
+[node name="StaticBody3D" type="StaticBody3D" parent="Box"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Box/StaticBody3D"]
+shape = SubResource("BoxShape3D_a02cp")
+
 [editable path="Player"]
-[editable path="Player/visuals/Player_base"]
+[editable path="Player/Player_model/Player_base"]

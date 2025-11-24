@@ -1,8 +1,8 @@
 extends CharacterBody3D
-
-@onready var anim_player: AnimationPlayer = $visuals/Player_base/AnimationPlayer
-@onready var anim_tree: AnimationTree = $visuals/Player_base/AnimationTree
-
+@onready var player_model = $Player_model
+@onready var anim_player: AnimationPlayer = $Player_model/Player_base/AnimationPlayer
+@onready var anim_tree: AnimationTree = $Player_model/Player_base/AnimationTree
+@onready var camera = $camera_mount/CameraPivot/Camera3D
 @export var blend_speed := 5.0
 @export var speed := 1.0
 @export var walk_speed_multiplier := 1.0
@@ -11,6 +11,8 @@ var player_logic = MovementLogic
 var first_time := false
 var current_animation := ""
 var current_speed := 0.0
+
+
 func _ready():
 	if not first_time:
 		print("Started Player Process")
@@ -33,32 +35,44 @@ func _ready():
 		first_time = true
 func _test():
 	print("_on_animation_finished")
+	
 
 func _physics_process(delta: float):
-	# Get 3D movement input
+	# Handle rotation
+	var rotation_speed = 3.0
+	var rotation_input = Input.get_axis("turn_left", "turn_right")
+	#if rotation_input != 0:
+		#player_model.rotate_y(-1 * (rotation_input * rotation_speed * delta))
+
+	# Process movement with camera-relative direction
+	__process_movement(delta)
+	move_and_slide()
+	
+	
+func __process_movement(delta: float):
+	# Get the input direction in 2D space (Z is forward/backward, X is left/right)
 	var input_dir = Vector3(
-		0,  # X axis (left/right)
-		0,  # Y axis (up/down - unused for ground movement)
-		Input.get_axis("forward", "backward")  # Z axis (forward/backward)
-	)
-	
-	# Normalize and apply speed
+		Input.get_axis("turn_left", "turn_right"),  # X axis (left/right)
+		0,                                          # Y axis (up/down)
+		Input.get_axis("forward", "backward")       # Z axis (forward/backward)
+	).normalized()  # Normalize to prevent faster diagonal movement
+
 	if input_dir.length() > 0:
+		# Get the camera's basis to determine our movement direction
+		var camera_basis = camera.global_transform.basis
+		var move_direction = camera_basis.z * input_dir.z + camera_basis.x * input_dir.x
+		move_direction.y = 0  # Keep movement horizontal
+		move_direction = move_direction.normalized()
+		
 		if player_logic.currentState == player_logic.States.RUN:
-			current_speed = lerpf(current_speed, speed * run_speed_multiplier, delta * blend_speed*run_speed_multiplier)	
+			current_speed = lerpf(current_speed, speed * run_speed_multiplier, delta * blend_speed * run_speed_multiplier)    
 		else:
-			current_speed = lerpf(current_speed, speed * walk_speed_multiplier, delta * blend_speed*walk_speed_multiplier)
-		velocity = input_dir.normalized() * current_speed #normalizes speed in all directions
+			current_speed = lerpf(current_speed, speed * walk_speed_multiplier, delta * blend_speed * walk_speed_multiplier)
+		
+		velocity = move_direction * current_speed
 	else:
-		velocity = Vector3.ZERO #sets velocity to zero if no input
-	
-	if current_speed == speed * run_speed_multiplier || current_speed == speed * walk_speed_multiplier:
-		print("Current speed: {current_speed}")
-		print("Speed: {speed}")
-		print("Run speed multiplier: {run_speed_multiplier}")
-		print("Walk speed multiplier: {walk_speed_multiplier}")
-	# Update movement logic
+		velocity = Vector3.ZERO
+
+	# Rest of your code...
 	player_logic.velocity = velocity.length()
 	player_logic.handle_states(delta, blend_speed)
-		
-	move_and_slide()
