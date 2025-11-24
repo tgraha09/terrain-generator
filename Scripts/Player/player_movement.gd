@@ -76,7 +76,7 @@ func _walkForward():
 	# Only update blend if in transition state
 	var current_blend = animation_tree.get(movment_blend)
 	#print("Walk: ", current_blend)
-	var new_blend = lerpf(current_blend, 0.0, delta * blend_speed)
+	var new_blend = lerpf(current_blend, 0.0, delta * blend_speed*2)
 	animation_tree.set(movment_blend, new_blend)
 	if Input.is_action_pressed("jump") && jump_released:
 		change_state(States.JUMP)
@@ -119,7 +119,7 @@ func _run():
 	var current_blend = animation_tree.get(movment_blend)
 	print("Run: ", current_blend)
 	
-	var new_blend = lerpf(current_blend, 1.0, delta * blend_speed*speed)
+	var new_blend = lerpf(current_blend, 1.0, delta * blend_speed*6)
 	animation_tree.set(movment_blend, new_blend)
 	
 	if Input.is_action_pressed("jump")  && jump_released:
@@ -134,13 +134,16 @@ func _run():
 	# Similar to walk but with different blend parameters
 	if Input.is_action_just_released("shift"):
 		change_state(States.WALKFORDWARD)
-	elif not Input.is_anything_pressed() || Input.is_action_just_released("forward"):
+	if Input.is_action_just_released("forward") || Input.is_action_just_released("shift"):
+		change_state(States.IDLE)
+	elif not Input.is_anything_pressed():
 		change_state(States.IDLE)
 
 func _jump():
 	print("Jump*")
 	_toggle_conditions({"jump": true})
 	#animation_tree.set("parameters/conditions/jump", true)
+	
 	animation_tree["parameters/playback"].travel("Jump", 0.2)
 	if Input.is_action_pressed("forward"):
 		animation_tree.set("parameters/conditions/jump", false)
@@ -188,7 +191,7 @@ func _toggle_conditions(_conditions: Dictionary):
 	for parameter in animation_tree.get_property_list():
 		#print(parameter.name)
 		if parameter.name.begins_with(condition_path) && parameter.type == TYPE_BOOL:
-			print(parameter.name)
+			#print(parameter.name)
 			for condition in _conditions:
 				#print(condition)
 				if parameter.name.contains(condition):
