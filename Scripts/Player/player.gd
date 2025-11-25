@@ -38,11 +38,14 @@ func _test():
 	
 
 func _physics_process(delta: float):
-	# Handle rotation
-	var rotation_speed = 3.0
-	var rotation_input = Input.get_axis("turn_left", "turn_right")
-	#if rotation_input != 0:
-		#player_model.rotate_y(-1 * (rotation_input * rotation_speed * delta))
+	# Make player model face the camera's horizontal direction
+	if camera && (player_logic.currentState == player_logic.States.RUN || 
+	player_logic.currentState == player_logic.States.WALKFORWARD || 
+	player_logic.currentState == player_logic.States.WALKBACKWARD):
+		# Get the camera's global rotation (yaw only, we don't want to tilt the player)
+		var camera_yaw = camera.global_transform.basis.get_euler().y
+		# Create a new rotation that only affects the Y axis to keep the player upright
+		player_model.rotation.y = lerp_angle(player_model.rotation.y, camera_yaw, delta * 10.0)
 
 	# Process movement with camera-relative direction
 	__process_movement(delta)

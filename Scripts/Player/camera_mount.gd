@@ -5,7 +5,7 @@ extends Node3D
 @onready var collision_shape = $Player/CollisionShape3D
 # Camera settings
 @export var mouse_sensitivity := 0.002
-@export var max_vertical_angle := deg_to_rad(30)  # 80 degrees in radians
+@export var max_vertical_angle := deg_to_rad(20)  # 80 degrees in radians
 @export var min_vertical_angle := deg_to_rad(-70)  # -30 degrees in radians
 
 # Zoom settings
@@ -52,10 +52,10 @@ func _unhandled_input(event):
 	if event is InputEventMouseButton:
 		if event.button_index == MOUSE_BUTTON_WHEEL_UP and event.pressed:
 			target_distance = clamp(target_distance - zoom_step, min_distance, max_distance)
-			print("Zoom in")
+			#print("Zoom in")
 		elif event.button_index == MOUSE_BUTTON_WHEEL_DOWN and event.pressed:
 			target_distance = clamp(target_distance + zoom_step, min_distance, max_distance)
-			print("Zoom out")
+			#print("Zoom out")
 
 func _process(delta):
 	# Smooth zooming
@@ -69,7 +69,7 @@ func update_camera_position():
 		
 		if collision_shape and collision_shape.shape is BoxShape3D:
 			camera_height = collision_shape.shape.size.y * collision_shape.scale.y
-			print("Using collision shape height:", camera_height)
+			#print("Using collision shape height:", camera_height)
 		
 		camera.position = Vector3(0, camera_height * 0.9, current_distance)  # 90% of height for eye level
 

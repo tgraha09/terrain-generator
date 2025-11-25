@@ -5,7 +5,7 @@ extends Node
 var animation_player: AnimationPlayer
 var animation_tree: AnimationTree
 
-enum States {IDLE, RUN, JUMP, WALKFORDWARD, WALKBACKWARD, NONE}
+enum States {IDLE, RUN, JUMP, WALKFORWARD, WALKBACKWARD, NONE}
 var currentState = States.NONE
 
 # Movement parameters
@@ -33,7 +33,7 @@ func handle_states(_delta, _blend_speed):
 	match currentState:
 		States.IDLE:
 			_idle()
-		States.WALKFORDWARD:
+		States.WALKFORWARD:
 			_walkForward()
 		States.WALKBACKWARD:
 			_walkBackward()
@@ -63,7 +63,7 @@ func _idle():
 		print("Jump released")
 		#is_jumping = true
 	if Input.is_action_pressed("forward"):
-		change_state(States.WALKFORDWARD)
+		change_state(States.WALKFORWARD)
 	if Input.is_action_pressed("backward"):
 		change_state(States.WALKBACKWARD)
 		#_toggle_conditions({"walk_backwards": true})
@@ -133,7 +133,7 @@ func _run():
 		print("Jump released")
 	# Similar to walk but with different blend parameters
 	if Input.is_action_just_released("shift"):
-		change_state(States.WALKFORDWARD)
+		change_state(States.WALKFORWARD)
 	if Input.is_action_just_released("forward") || Input.is_action_just_released("shift"):
 		change_state(States.IDLE)
 	elif not Input.is_anything_pressed():
@@ -147,7 +147,7 @@ func _jump():
 	animation_tree["parameters/playback"].travel("Jump", 0.2)
 	if Input.is_action_pressed("forward"):
 		animation_tree.set("parameters/conditions/jump", false)
-		change_state(States.WALKFORDWARD if !Input.is_action_pressed("shift") else States.RUN)
+		change_state(States.WALKFORWARD if !Input.is_action_pressed("shift") else States.RUN)
 	else:
 		animation_tree.set("parameters/conditions/jump", false)
 		change_state(States.IDLE)
@@ -177,7 +177,7 @@ func _on_animation_finished(anim_name):
 		animation_tree["parameters/playback"].travel("movement_tree", XFADE_TIME)
 		_toggle_conditions({"jump": false})
 		if Input.is_action_pressed("forward"):
-			change_state(States.WALKFORDWARD if !Input.is_action_pressed("shift") else States.RUN)
+			change_state(States.WALKFORWARD if !Input.is_action_pressed("shift") else States.RUN)
 		else:
 			change_state(States.IDLE)
 
@@ -187,7 +187,7 @@ func _transition_to(anim_name: String, new_state: States):
 
 	
 func _toggle_conditions(_conditions: Dictionary):
-	print("trigger_animations")
+	#print("trigger_animations")
 	for parameter in animation_tree.get_property_list():
 		#print(parameter.name)
 		if parameter.name.begins_with(condition_path) && parameter.type == TYPE_BOOL:
